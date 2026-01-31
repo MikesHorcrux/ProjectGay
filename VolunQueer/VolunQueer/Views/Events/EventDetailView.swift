@@ -5,9 +5,14 @@ import SwiftUI
 struct EventDetailView: View {
     let event: Event
     @EnvironmentObject private var store: AppStore
+    @EnvironmentObject private var authStore: AuthStore
 
     private var roles: [EventRole] { store.roles(for: event) }
     private var org: Organization? { store.organization(for: event) }
+    private var currentUser: AppUser? {
+        guard case .signedIn(let userId) = authStore.state else { return nil }
+        return store.users.first { $0.id == userId }
+    }
 
     var body: some View {
         ScrollView {
@@ -35,8 +40,6 @@ struct EventDetailView: View {
             rsvpBar
         }
     }
-
-    // MARK: - Sections
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -204,25 +207,17 @@ struct EventDetailView: View {
     private var rsvpBar: some View {
         VStack(spacing: 0) {
             Divider()
-            Button {
-                // Auth flow will handle sign-in and RSVP
-            } label: {
-                Text("Sign in to RSVP")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Theme.coralRose)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            if let userId = currentUserId {
+                if isOrganizerForEvent {
+                    OrganizerEventBarView(event: event, service: store.rsvpService)
+                } else {
+                    RSVPBarView(event: event, roles: roles, userId: userId, service: store.rsvpService)
+                }
+            } else {
+                signInPromptBar
             }
-            .buttonStyle(.plain)
-            .padding(.horizontal)
-            .padding(.vertical, 12)
-            .background(Theme.cream)
         }
     }
-
-    // MARK: - Helpers
 
     private func sectionLabel(_ title: String) -> some View {
         Text(title)
@@ -250,6 +245,37 @@ struct EventDetailView: View {
     private func hasContactContent(_ contact: EventContact) -> Bool {
         (contact.name?.isEmpty == false) || (contact.email?.isEmpty == false) || (contact.phone?.isEmpty == false)
     }
+
+    private var currentUserId: String? {
+        if case .signedIn(let userId) = authStore.state {
+            return userId
+        }
+        return nil
+    }
+
+    private var isOrganizerForEvent: Bool {
+        guard let user = currentUser else { return false }
+        guard user.roles.contains(.organizer) else { return false }
+        if event.createdBy == user.id {
+            return true
+        }
+        return user.organizerProfile?.orgIds.contains(event.orgId) ?? false
+    }
+
+    private var signInPromptBar: some View {
+        VStack(spacing: 8) {
+            Text("Sign in to RSVP")
+                .font(.headline)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(Theme.coralRose)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .padding(.horizontal)
+        }
+        .padding(.vertical, 12)
+        .background(Theme.cream)
+    }
 }
 
 #Preview {
@@ -258,6 +284,7 @@ struct EventDetailView: View {
         if let event = store.publishedEvents.first {
             EventDetailView(event: event)
                 .environmentObject(store)
+                .environmentObject(AuthStore(isConfigured: false))
         }
     }
 }

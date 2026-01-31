@@ -12,12 +12,28 @@
 		DAB195842F2DA9A900A9C1E8 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAB195832F2DA9A900A9C1E8 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		8E4FB6C6E39F61E1F864CDFA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DAB194D02F2D70A100A9C1E8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DAB194D72F2D70A100A9C1E8;
+			remoteInfo = VolunQueer;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		BB89049C476505F61C7A9233 /* VolunQueerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VolunQueerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DAB194D82F2D70A100A9C1E8 /* VolunQueer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VolunQueer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DAB195832F2DA9A900A9C1E8 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		120FC7A96A090C71A105881B /* VolunQueerTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = VolunQueerTests;
+			sourceTree = "<group>";
+		};
 		DAB194DA2F2D70A100A9C1E8 /* VolunQueer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = VolunQueer;
@@ -26,6 +42,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		212D1CE00FC99532173223D1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DAB194D52F2D70A100A9C1E8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -42,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				DAB194DA2F2D70A100A9C1E8 /* VolunQueer */,
+				120FC7A96A090C71A105881B /* VolunQueerTests */,
 				DAB194D92F2D70A100A9C1E8 /* Products */,
 				DAB195832F2DA9A900A9C1E8 /* GoogleService-Info.plist */,
 			);
@@ -51,6 +75,7 @@
 			isa = PBXGroup;
 			children = (
 				DAB194D82F2D70A100A9C1E8 /* VolunQueer.app */,
+				BB89049C476505F61C7A9233 /* VolunQueerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -58,6 +83,27 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		ADA7B7EE2B23372D0077D123 /* VolunQueerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3FFE7A9F6DE400B9AFD99BCD /* Build configuration list for PBXNativeTarget "VolunQueerTests" */;
+			buildPhases = (
+				3335A2BD895C813EC9E86454 /* Sources */,
+				212D1CE00FC99532173223D1 /* Frameworks */,
+				97CBDD8E21CEBA35348EB907 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0D5245671C419AF17A8579DE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				120FC7A96A090C71A105881B /* VolunQueerTests */,
+			);
+			name = VolunQueerTests;
+			productName = VolunQueerTests;
+			productReference = BB89049C476505F61C7A9233 /* VolunQueerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		DAB194D72F2D70A100A9C1E8 /* VolunQueer */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DAB194E32F2D70A300A9C1E8 /* Build configuration list for PBXNativeTarget "VolunQueer" */;
@@ -92,6 +138,9 @@
 				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					ADA7B7EE2B23372D0077D123 = {
+						CreatedOnToolsVersion = 26.2;
+					};
 					DAB194D72F2D70A100A9C1E8 = {
 						CreatedOnToolsVersion = 26.2;
 					};
@@ -115,11 +164,19 @@
 			projectRoot = "";
 			targets = (
 				DAB194D72F2D70A100A9C1E8 /* VolunQueer */,
+				ADA7B7EE2B23372D0077D123 /* VolunQueerTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		97CBDD8E21CEBA35348EB907 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DAB194D62F2D70A100A9C1E8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -131,6 +188,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3335A2BD895C813EC9E86454 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DAB194D42F2D70A100A9C1E8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -140,7 +204,55 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		0D5245671C419AF17A8579DE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DAB194D72F2D70A100A9C1E8 /* VolunQueer */;
+			targetProxy = 8E4FB6C6E39F61E1F864CDFA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		08F1846190BBC11FFB2DD893 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = QBL739225X;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.Cephalopod.VolunQueerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VolunQueer.app/VolunQueer";
+			};
+			name = Debug;
+		};
+		A58842C760E916F09FCFCD1A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = QBL739225X;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.Cephalopod.VolunQueerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VolunQueer.app/VolunQueer";
+			};
+			name = Release;
+		};
 		DAB194E12F2D70A300A9C1E8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -267,6 +379,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VolunQueer/VolunQueer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QBL739225X;
@@ -277,6 +390,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -299,6 +413,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VolunQueer/VolunQueer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QBL739225X;
@@ -309,6 +424,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -329,6 +445,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3FFE7A9F6DE400B9AFD99BCD /* Build configuration list for PBXNativeTarget "VolunQueerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				08F1846190BBC11FFB2DD893 /* Debug */,
+				A58842C760E916F09FCFCD1A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		DAB194D32F2D70A100A9C1E8 /* Build configuration list for PBXProject "VolunQueer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -88,6 +88,7 @@ to control what organizers can see.
 
 `events/{eventId}/rsvps/{uid}`
 - `roleId`
+- `eventId` (optional; used for collection group queries)
 - `status` (rsvp, waitlisted, cancelled, noShow)
 - `consent` (map: shareEmail, sharePhone, sharePronouns, shareAccessibility)
 - `answers` (map)
@@ -128,3 +129,11 @@ scheme:
 
 - `VOLUNQUEER_DATA_SOURCE=firestore`
 - `VOLUNQUEER_SEED=1` (optional; seeds Firestore once if empty)
+
+### Firestore indexes
+
+The “My RSVPs” tab uses a collection group query on `rsvps` filtered by `userId`.
+Create a collection group index:
+
+- Collection group: `rsvps`
+- Field: `userId` (Ascending)

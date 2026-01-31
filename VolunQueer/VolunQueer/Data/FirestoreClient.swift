@@ -38,6 +38,28 @@ final class FirestoreClient {
         }
     }
 
+    /// Loads a single document by ID from a collection.
+    func fetchDocument<T: FirestoreDocument>(_ collectionPath: String, id: String, as type: T.Type) async throws -> T? {
+        try await withCheckedThrowingContinuation { continuation in
+            db.collection(collectionPath).document(id).getDocument { snapshot, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                guard let snapshot, snapshot.exists, let data = snapshot.data() else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                do {
+                    let item = try T.fromFirestoreData(id: snapshot.documentID, data: data)
+                    continuation.resume(returning: item)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+
     /// Writes a document using the provided model value.
     func setDocument<T: FirestoreDocument>(_ collectionPath: String, id: String, value: T) async throws {
         let data = try value.asFirestoreData()

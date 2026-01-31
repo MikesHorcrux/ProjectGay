@@ -11,12 +11,20 @@ final class AppStore: ObservableObject {
     @Published private(set) var loadState: AppStoreLoadState = .idle
 
     let dataSource: AppStoreDataSource
+    /// RSVP persistence for the volunteer flow.
+    let rsvpService: RSVPService
     private let firestore: FirestoreClient?
 
     /// Creates a store with the specified data source.
     init(dataSource: AppStoreDataSource, preload: Bool = false) {
         self.dataSource = dataSource
-        self.firestore = dataSource == .firestore ? FirestoreClient() : nil
+        let firestoreClient = dataSource == .firestore ? FirestoreClient() : nil
+        self.firestore = firestoreClient
+        if let firestoreClient {
+            rsvpService = FirestoreRSVPService(client: firestoreClient)
+        } else {
+            rsvpService = MockRSVPService(seed: MockData.bundle)
+        }
 
         if preload, dataSource == .mock {
             applyMockData()

@@ -1,58 +1,33 @@
 import SwiftUI
 
-/// Volunteer discovery: list of event cards (when/where, tags, spots).
-struct EventListView: View {
-    @EnvironmentObject private var store: AppStore
-
-    private var events: [Event] {
-        store.publishedEvents.sorted { $0.startsAt < $1.startsAt }
-    }
-
-    var body: some View {
-        Group {
-            if events.isEmpty {
-                ContentUnavailableView(
-                    "No events yet",
-                    systemImage: "calendar.badge.plus",
-                    description: Text("Check back soon for volunteer opportunities near you.")
-                )
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        ForEach(events) { event in
-                            NavigationLink(value: event) {
-                                EventCardView(event: event, store: store)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding()
-                }
-            }
-        }
-        .background(Theme.cream)
-        .navigationTitle("Discover")
-        .navigationDestination(for: Event.self) { event in
-            EventDetailView(event: event)
-        }
-    }
-}
-
-// MARK: - Event card (title → when/where → role(s) → spots)
-
-private struct EventCardView: View {
+/// Card view for volunteer discovery listings.
+struct EventCardView: View {
     let event: Event
     let store: AppStore
+    let rsvpStatus: RSVPStatus?
 
     private var roles: [EventRole] { store.roles(for: event) }
-    private var org: Organization? { store.organization(for: event) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(event.title)
-                .font(.headline)
-                .foregroundStyle(Theme.softCharcoal)
-                .multilineTextAlignment(.leading)
+            HStack(alignment: .top, spacing: 12) {
+                Text(event.title)
+                    .font(.headline)
+                    .foregroundStyle(Theme.softCharcoal)
+                    .multilineTextAlignment(.leading)
+
+                Spacer()
+
+                if let badge = badgeText {
+                    Text(badge)
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .foregroundStyle(badgeForeground)
+                        .background(badgeBackground)
+                        .clipShape(Capsule())
+                }
+            }
 
             HStack(spacing: 6) {
                 Image(systemName: "calendar")
@@ -90,11 +65,9 @@ private struct EventCardView: View {
             }
 
             if let cap = event.rsvpCap, cap > 0 {
-                HStack {
-                    Text(spotsText)
-                        .font(.caption)
-                        .foregroundStyle(Theme.softCharcoal.opacity(0.8))
-                }
+                Text(spotsText)
+                    .font(.caption)
+                    .foregroundStyle(Theme.softCharcoal.opacity(0.8))
             }
         }
         .padding()
@@ -125,11 +98,48 @@ private struct EventCardView: View {
         }
         return "\(cap) spots"
     }
-}
 
-#Preview {
-    NavigationStack {
-        EventListView()
-            .environmentObject(AppStore(dataSource: .mock, preload: true))
+    private var isFull: Bool {
+        let totalSlots = roles.reduce(0) { $0 + $1.slotsTotal }
+        let filled = roles.reduce(0) { $0 + $1.slotsFilled }
+        guard totalSlots > 0 else { return false }
+        if let cap = event.rsvpCap, cap > 0 {
+            return filled >= min(totalSlots, cap)
+        }
+        return filled >= totalSlots
+    }
+
+    private var badgeText: String? {
+        if let rsvpStatus {
+            switch rsvpStatus {
+            case .rsvp:
+                return "RSVP'd"
+            case .waitlisted:
+                return "Waitlist"
+            case .cancelled:
+                return nil
+            case .noShow:
+                return "No show"
+            }
+        }
+        return isFull ? "Full" : nil
+    }
+
+    private var badgeForeground: Color {
+        if let rsvpStatus {
+            switch rsvpStatus {
+            case .rsvp:
+                return Theme.skyTeal
+            case .waitlisted:
+                return .orange
+            case .cancelled, .noShow:
+                return .secondary
+            }
+        }
+        return .secondary
+    }
+
+    private var badgeBackground: Color {
+        badgeForeground.opacity(0.15)
     }
 }

@@ -205,6 +205,7 @@ enum MockData {
                 RSVP(
                     id: "user-alex",
                     userId: "user-alex",
+                    eventId: "event-coffee-hour",
                     roleId: "role-host",
                     status: .rsvp,
                     consent: ConsentSnapshot(
