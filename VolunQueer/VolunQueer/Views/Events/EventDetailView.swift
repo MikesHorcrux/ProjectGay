@@ -9,6 +9,10 @@ struct EventDetailView: View {
 
     private var roles: [EventRole] { store.roles(for: event) }
     private var org: Organization? { store.organization(for: event) }
+    private var currentUser: AppUser? {
+        guard case .signedIn(let userId) = authStore.state else { return nil }
+        return store.users.first { $0.id == userId }
+    }
 
     var body: some View {
         ScrollView {
@@ -204,7 +208,11 @@ struct EventDetailView: View {
         VStack(spacing: 0) {
             Divider()
             if let userId = currentUserId {
-                RSVPBarView(event: event, roles: roles, userId: userId, service: store.rsvpService)
+                if isOrganizerForEvent {
+                    OrganizerEventBarView(event: event, service: store.rsvpService)
+                } else {
+                    RSVPBarView(event: event, roles: roles, userId: userId, service: store.rsvpService)
+                }
             } else {
                 signInPromptBar
             }
@@ -243,6 +251,15 @@ struct EventDetailView: View {
             return userId
         }
         return nil
+    }
+
+    private var isOrganizerForEvent: Bool {
+        guard let user = currentUser else { return false }
+        guard user.roles.contains(.organizer) else { return false }
+        if event.createdBy == user.id {
+            return true
+        }
+        return user.organizerProfile?.orgIds.contains(event.orgId) ?? false
     }
 
     private var signInPromptBar: some View {

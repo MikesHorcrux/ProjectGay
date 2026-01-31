@@ -17,7 +17,38 @@ actor MockRSVPService: RSVPService {
     }
 
     func fetchRSVP(eventId: String, userId: String) async throws -> RSVP? {
-        rsvpsByEvent[eventId]?[userId]
+        if var rsvp = rsvpsByEvent[eventId]?[userId] {
+            if rsvp.eventId == nil {
+                rsvp.eventId = eventId
+            }
+            return rsvp
+        }
+        return nil
+    }
+
+    func fetchRsvps(for userId: String) async throws -> [RSVP] {
+        var results: [RSVP] = []
+        for (eventId, perUser) in rsvpsByEvent {
+            if var rsvp = perUser[userId] {
+                if rsvp.eventId == nil {
+                    rsvp.eventId = eventId
+                }
+                results.append(rsvp)
+            }
+        }
+        return results
+    }
+
+    func fetchRsvps(eventId: String) async throws -> [RSVP] {
+        let rsvps = rsvpsByEvent[eventId]?.values ?? []
+        return rsvps.map { rsvp in
+            if rsvp.eventId == nil {
+                var updated = rsvp
+                updated.eventId = eventId
+                return updated
+            }
+            return rsvp
+        }
     }
 
     func submitRSVP(eventId: String, userId: String, roleId: String?, consent: ConsentSnapshot) async throws -> RSVP {
@@ -26,6 +57,7 @@ actor MockRSVPService: RSVPService {
         let rsvp = RSVP(
             id: userId,
             userId: userId,
+            eventId: eventId,
             roleId: roleId,
             status: .rsvp,
             consent: consent,
@@ -45,6 +77,7 @@ actor MockRSVPService: RSVPService {
         let rsvp = RSVP(
             id: userId,
             userId: userId,
+            eventId: eventId,
             roleId: existing?.roleId,
             status: .cancelled,
             consent: existing?.consent ?? ConsentSnapshot(shareEmail: false, sharePhone: false, sharePronouns: true, shareAccessibility: true),

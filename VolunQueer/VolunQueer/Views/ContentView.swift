@@ -33,7 +33,7 @@ struct ContentView: View {
     private var tabView: some View {
         if case .signedIn(let userId) = authStore.state {
             TabView {
-                DiscoverTabView()
+                DiscoverTabView(userId: userId, service: store.rsvpService)
                     .tabItem {
                         Label("Discover", systemImage: "sparkles")
                     }

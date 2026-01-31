@@ -1,10 +1,10 @@
 import Foundation
 import Combine
 
-/// Loads RSVP rows for the current user across events.
+/// Loads RSVP statuses for the current user across events.
 @MainActor
-final class RSVPListViewModel: ObservableObject {
-    @Published private(set) var rows: [RSVPListRow] = []
+final class EventRSVPStatusViewModel: ObservableObject {
+    @Published private(set) var statuses: [String: RSVPStatus] = [:]
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
 
@@ -16,10 +16,10 @@ final class RSVPListViewModel: ObservableObject {
         self.service = service
     }
 
-    /// Loads RSVP rows for the provided events.
+    /// Loads RSVP statuses for the provided events.
     func load(events: [Event]) async {
         guard !events.isEmpty else {
-            rows = []
+            statuses = [:]
             errorMessage = nil
             isLoading = false
             return
@@ -30,13 +30,14 @@ final class RSVPListViewModel: ObservableObject {
 
         do {
             let rsvps = try await service.fetchRsvps(for: userId)
-            let eventsById = Dictionary(uniqueKeysWithValues: events.map { ($0.id, $0) })
-            let filtered = rsvps.compactMap { rsvp -> RSVPListRow? in
-                guard rsvp.status != .cancelled else { return nil }
-                guard let eventId = rsvp.eventId, let event = eventsById[eventId] else { return nil }
-                return RSVPListRow(event: event, rsvp: rsvp)
+            let eventIds = Set(events.map { $0.id })
+            var map: [String: RSVPStatus] = [:]
+            for rsvp in rsvps {
+                guard let eventId = rsvp.eventId, eventIds.contains(eventId) else { continue }
+                guard rsvp.status != .cancelled else { continue }
+                map[eventId] = rsvp.status
             }
-            rows = filtered.sorted { $0.event.startsAt < $1.event.startsAt }
+            statuses = map
         } catch {
             errorMessage = error.localizedDescription
         }
