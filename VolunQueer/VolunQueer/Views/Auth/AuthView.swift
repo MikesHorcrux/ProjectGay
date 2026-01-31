@@ -51,6 +51,7 @@ struct AuthView: View {
             } onCompletion: { result in
                 authStore.handleAppleResult(result)
             }
+            .frame(maxWidth: 360)
             .frame(height: 44)
             .signInWithAppleButtonStyle(.black)
         }

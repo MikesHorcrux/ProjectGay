@@ -44,11 +44,13 @@ final class AuthStore: ObservableObject {
     func signInEmail() async {
         guard isConfigured else { return }
         guard validateEmailPassword() else { return }
+        errorMessage = nil
         state = .loading
 
         do {
+            let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
             _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<AuthDataResult, Error>) in
-                Auth.auth().signIn(withEmail: email, password: password) { result, error in
+                Auth.auth().signIn(withEmail: trimmedEmail, password: password) { result, error in
                     if let error {
                         continuation.resume(throwing: error)
                         return
@@ -69,11 +71,14 @@ final class AuthStore: ObservableObject {
     func signUpEmail() async {
         guard isConfigured else { return }
         guard validateEmailPassword() else { return }
+        guard validatePasswordStrength() else { return }
+        errorMessage = nil
         state = .loading
 
         do {
+            let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
             _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<AuthDataResult, Error>) in
-                Auth.auth().createUser(withEmail: email, password: password) { result, error in
+                Auth.auth().createUser(withEmail: trimmedEmail, password: password) { result, error in
                     if let error {
                         continuation.resume(throwing: error)
                         return
@@ -133,6 +138,7 @@ final class AuthStore: ObservableObject {
 
             state = .loading
             let credential = OAuthProvider.credential(providerID: .apple, idToken: tokenString, rawNonce: nonce)
+            currentNonce = nil
             Task {
                 await signIn(with: credential)
             }
@@ -142,6 +148,7 @@ final class AuthStore: ObservableObject {
     }
 
     private func signIn(with credential: AuthCredential) async {
+        errorMessage = nil
         do {
             _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<AuthDataResult, Error>) in
                 Auth.auth().signIn(with: credential) { result, error in
@@ -180,8 +187,45 @@ final class AuthStore: ObservableObject {
         return true
     }
 
+    private func validatePasswordStrength() -> Bool {
+        if password.count < 6 {
+            errorMessage = "Password must be at least 6 characters."
+            state = .signedOut
+            return false
+        }
+        return true
+    }
+
     private func handleAuthError(_ error: Error) {
-        errorMessage = error.localizedDescription
+        let nsError = error as NSError
+        if let authCode = AuthErrorCode(_bridgedNSError: nsError) {
+            switch authCode.code {
+            case .invalidEmail:
+                errorMessage = "Email address is invalid."
+            case .userNotFound:
+                errorMessage = "No account found for this email."
+            case .wrongPassword:
+                errorMessage = "Incorrect password."
+            case .emailAlreadyInUse:
+                errorMessage = "Email is already in use."
+            case .weakPassword:
+                errorMessage = "Password is too weak."
+            case .credentialAlreadyInUse:
+                errorMessage = "That credential is already linked to another account."
+            case .invalidCredential:
+                errorMessage = "The supplied credential is invalid or expired."
+            case .operationNotAllowed:
+                errorMessage = "This sign-in method is not enabled in Firebase."
+            case .userDisabled:
+                errorMessage = "This account has been disabled."
+            case .missingOrInvalidNonce:
+                errorMessage = "Sign in with Apple failed. Please try again."
+            default:
+                errorMessage = nsError.localizedDescription
+            }
+        } else {
+            errorMessage = nsError.localizedDescription
+        }
         state = .signedOut
     }
 
@@ -192,7 +236,7 @@ final class AuthStore: ObservableObject {
         var remainingLength = length
 
         while remainingLength > 0 {
-            var randoms: [UInt8] = (0..<16).map { _ in
+            let randoms: [UInt8] = (0..<16).map { _ in
                 var random: UInt8 = 0
                 let errorCode = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
                 if errorCode != errSecSuccess {
