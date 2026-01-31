@@ -88,9 +88,38 @@ final class AppStore: ObservableObject {
         organizations.first { $0.id == event.orgId }
     }
 
+    /// User profile for the given ID.
+    func user(for id: String) -> AppUser? {
+        users.first { $0.id == id }
+    }
+
     /// Roles for an event (from mock bundle; Firestore subcollection can be wired later).
     func roles(for event: Event) -> [EventRole] {
         rolesByEvent[event.id] ?? []
+    }
+
+    /// Saves a user profile and updates local state.
+    func saveUser(_ user: AppUser) async throws {
+        if dataSource == .firestore, let firestore {
+            try await firestore.setDocument("users", id: user.id, value: user)
+        }
+        if let index = users.firstIndex(where: { $0.id == user.id }) {
+            users[index] = user
+        } else {
+            users.append(user)
+        }
+    }
+
+    /// Saves an organization and updates local state.
+    func saveOrganization(_ organization: Organization) async throws {
+        if dataSource == .firestore, let firestore {
+            try await firestore.setDocument("organizations", id: organization.id, value: organization)
+        }
+        if let index = organizations.firstIndex(where: { $0.id == organization.id }) {
+            organizations[index] = organization
+        } else {
+            organizations.append(organization)
+        }
     }
 
     /// Published events suitable for discovery.

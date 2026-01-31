@@ -1,7 +1,7 @@
 import Foundation
 
 /// Days of the week.
-enum Weekday: String, Codable, Hashable {
+enum Weekday: String, Codable, Hashable, CaseIterable {
     case monday
     case tuesday
     case wednesday
