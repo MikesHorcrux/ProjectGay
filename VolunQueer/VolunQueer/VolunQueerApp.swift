@@ -11,14 +11,27 @@ import FirebaseFirestore
 
 @main
 struct VolunQueerApp: App {
+    @StateObject private var store = AppStore(
+        dataSource: AppConfiguration.dataSource,
+        preload: AppConfiguration.dataSource == .mock
+    )
+
     init() {
-        FirebaseApp.configure()
-        _ = Firestore.firestore()
+        if AppConfiguration.dataSource == .firestore {
+            FirebaseApp.configure()
+            _ = Firestore.firestore()
+        }
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(store)
+                .task {
+                    if AppConfiguration.seedOnLaunch, store.dataSource == .firestore {
+                        await store.seedMockData()
+                    }
+                }
         }
     }
 }
