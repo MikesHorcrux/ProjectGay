@@ -6,7 +6,6 @@ struct EventDetailView: View {
     let event: Event
     @EnvironmentObject private var store: AppStore
     @EnvironmentObject private var authStore: AuthStore
-    @State private var isSubmitting = false
 
     private var roles: [EventRole] { store.roles(for: event) }
     private var org: Organization? { store.organization(for: event) }
@@ -36,13 +35,7 @@ struct EventDetailView: View {
         .safeAreaInset(edge: .bottom) {
             rsvpBar
         }
-        .task(id: currentUserId ?? "signed-out") {
-            guard let userId = currentUserId else { return }
-            await store.loadRsvp(for: event, userId: userId)
-        }
     }
-
-    // MARK: - Sections
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -210,35 +203,13 @@ struct EventDetailView: View {
     private var rsvpBar: some View {
         VStack(spacing: 0) {
             Divider()
-            Button {
-                guard let userId = currentUserId else { return }
-                isSubmitting = true
-                Task {
-                    if isRsvped {
-                        await store.cancelRsvp(for: event, userId: userId)
-                    } else {
-                        await store.submitRsvp(for: event, userId: userId)
-                    }
-                    isSubmitting = false
-                }
-            } label: {
-                Text(rsvpButtonText)
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Theme.coralRose)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            if let userId = currentUserId {
+                RSVPBarView(event: event, roles: roles, userId: userId, service: store.rsvpService)
+            } else {
+                signInPromptBar
             }
-            .buttonStyle(.plain)
-            .disabled(isSubmitting || currentUserId == nil)
-            .padding(.horizontal)
-            .padding(.vertical, 12)
-            .background(Theme.cream)
         }
     }
-
-    // MARK: - Helpers
 
     private func sectionLabel(_ title: String) -> some View {
         Text(title)
@@ -274,18 +245,19 @@ struct EventDetailView: View {
         return nil
     }
 
-    private var currentRsvp: RSVP? {
-        guard let userId = currentUserId else { return nil }
-        return store.rsvp(for: event, userId: userId)
-    }
-
-    private var isRsvped: Bool {
-        currentRsvp?.status == .rsvp
-    }
-
-    private var rsvpButtonText: String {
-        guard currentUserId != nil else { return "Sign in to RSVP" }
-        return isRsvped ? "Cancel RSVP" : "RSVP"
+    private var signInPromptBar: some View {
+        VStack(spacing: 8) {
+            Text("Sign in to RSVP")
+                .font(.headline)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(Theme.coralRose)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .padding(.horizontal)
+        }
+        .padding(.vertical, 12)
+        .background(Theme.cream)
     }
 }
 

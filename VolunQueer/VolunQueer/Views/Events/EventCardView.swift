@@ -1,51 +1,11 @@
 import SwiftUI
 
-/// Volunteer discovery: list of event cards (when/where, tags, spots).
-struct EventListView: View {
-    @EnvironmentObject private var store: AppStore
-
-    private var events: [Event] {
-        store.publishedEvents.sorted { $0.startsAt < $1.startsAt }
-    }
-
-    var body: some View {
-        Group {
-            if events.isEmpty {
-                ContentUnavailableView(
-                    "No events yet",
-                    systemImage: "calendar.badge.plus",
-                    description: Text("Check back soon for volunteer opportunities near you.")
-                )
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        ForEach(events) { event in
-                            NavigationLink(value: event) {
-                                EventCardView(event: event, store: store)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding()
-                }
-            }
-        }
-        .background(Theme.cream)
-        .navigationTitle("Discover")
-        .navigationDestination(for: Event.self) { event in
-            EventDetailView(event: event)
-        }
-    }
-}
-
-// MARK: - Event card (title → when/where → role(s) → spots)
-
-private struct EventCardView: View {
+/// Card view for volunteer discovery listings.
+struct EventCardView: View {
     let event: Event
     let store: AppStore
 
     private var roles: [EventRole] { store.roles(for: event) }
-    private var org: Organization? { store.organization(for: event) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -90,11 +50,9 @@ private struct EventCardView: View {
             }
 
             if let cap = event.rsvpCap, cap > 0 {
-                HStack {
-                    Text(spotsText)
-                        .font(.caption)
-                        .foregroundStyle(Theme.softCharcoal.opacity(0.8))
-                }
+                Text(spotsText)
+                    .font(.caption)
+                    .foregroundStyle(Theme.softCharcoal.opacity(0.8))
             }
         }
         .padding()
@@ -124,12 +82,5 @@ private struct EventCardView: View {
             return "\(left) of \(totalSlots) spots left"
         }
         return "\(cap) spots"
-    }
-}
-
-#Preview {
-    NavigationStack {
-        EventListView()
-            .environmentObject(AppStore(dataSource: .mock, preload: true))
     }
 }

@@ -8,16 +8,23 @@ final class AppStore: ObservableObject {
     @Published private(set) var organizations: [Organization] = []
     @Published private(set) var events: [Event] = []
     @Published private(set) var rolesByEvent: [String: [EventRole]] = [:]
-    @Published private(set) var currentUserRsvps: [String: RSVP] = [:]
     @Published private(set) var loadState: AppStoreLoadState = .idle
 
     let dataSource: AppStoreDataSource
+    /// RSVP persistence for the volunteer flow.
+    let rsvpService: RSVPService
     private let firestore: FirestoreClient?
 
     /// Creates a store with the specified data source.
     init(dataSource: AppStoreDataSource, preload: Bool = false) {
         self.dataSource = dataSource
-        self.firestore = dataSource == .firestore ? FirestoreClient() : nil
+        let firestoreClient = dataSource == .firestore ? FirestoreClient() : nil
+        self.firestore = firestoreClient
+        if let firestoreClient {
+            rsvpService = FirestoreRSVPService(client: firestoreClient)
+        } else {
+            rsvpService = MockRSVPService(seed: MockData.bundle)
+        }
 
         if preload, dataSource == .mock {
             applyMockData()
@@ -84,83 +91,6 @@ final class AppStore: ObservableObject {
     /// Roles for an event (from mock bundle; Firestore subcollection can be wired later).
     func roles(for event: Event) -> [EventRole] {
         rolesByEvent[event.id] ?? []
-    }
-
-    /// RSVP for the current user, if loaded.
-    func rsvp(for event: Event, userId: String) -> RSVP? {
-        if let rsvp = currentUserRsvps[event.id], rsvp.userId == userId {
-            return rsvp
-        }
-        return nil
-    }
-
-    /// Loads the current user's RSVP for an event.
-    func loadRsvp(for event: Event, userId: String) async {
-        switch dataSource {
-        case .mock:
-            if let rsvp = MockData.bundle.rsvpsByEvent[event.id]?.first(where: { $0.userId == userId }) {
-                currentUserRsvps[event.id] = rsvp
-            } else {
-                currentUserRsvps.removeValue(forKey: event.id)
-            }
-        case .firestore:
-            guard let firestore else { return }
-            do {
-                let rsvp = try await firestore.fetchDocument("events/\(event.id)/rsvps", id: userId, as: RSVP.self)
-                currentUserRsvps[event.id] = rsvp
-            } catch {
-                loadState = .failed(error.localizedDescription)
-            }
-        }
-    }
-
-    /// Creates or updates an RSVP for the current user.
-    func submitRsvp(for event: Event, userId: String, roleId: String? = nil) async {
-        let now = Date()
-        let existing = currentUserRsvps[event.id]
-        let rsvp = RSVP(
-            id: userId,
-            userId: userId,
-            roleId: roleId,
-            status: .rsvp,
-            consent: ConsentSnapshot(
-                shareEmail: false,
-                sharePhone: false,
-                sharePronouns: true,
-                shareAccessibility: true
-            ),
-            answers: nil,
-            createdAt: existing?.createdAt ?? now,
-            updatedAt: now
-        )
-
-        currentUserRsvps[event.id] = rsvp
-
-        guard let firestore else { return }
-        if dataSource == .firestore {
-            do {
-                try await firestore.setDocument("events/\(event.id)/rsvps", id: userId, value: rsvp)
-            } catch {
-                loadState = .failed(error.localizedDescription)
-            }
-        }
-    }
-
-    /// Cancels the current user's RSVP.
-    func cancelRsvp(for event: Event, userId: String) async {
-        guard var rsvp = currentUserRsvps[event.id] else { return }
-        rsvp.status = .cancelled
-        rsvp.updatedAt = Date()
-        currentUserRsvps[event.id] = rsvp
-
-        guard let firestore else { return }
-        if dataSource == .firestore {
-            do {
-                try await firestore.setDocument("events/\(event.id)/rsvps", id: userId, value: rsvp)
-            } catch {
-                loadState = .failed(error.localizedDescription)
-            }
-        }
     }
 
     /// Published events suitable for discovery.
