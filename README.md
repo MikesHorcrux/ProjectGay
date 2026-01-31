@@ -108,3 +108,11 @@ to control what organizers can see.
 
 1. Open `VolunQueer/VolunQueer.xcodeproj` in Xcode.
 2. Build and run on a simulator or device.
+
+### Data source (mock vs Firestore)
+
+By default the app uses mock data. To use Firestore, set environment variables in your Xcode
+scheme:
+
+- `VOLUNQUEER_DATA_SOURCE=firestore`
+- `VOLUNQUEER_SEED=1` (optional; seeds Firestore once if empty)
