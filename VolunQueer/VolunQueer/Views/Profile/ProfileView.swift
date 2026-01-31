@@ -98,10 +98,7 @@ struct ProfileView: View {
             VStack(alignment: .leading, spacing: 6) {
                 if let profile = user.organizerProfile {
                     if !profile.orgIds.isEmpty {
-                        let names = profile.orgIds.compactMap { id in
-                            store.organizations.first { $0.id == id }?.name
-                        }
-                        Text("Organizations: \(names.isEmpty ? "Not set" : names.joined(separator: ", "))")
+                        Text("Organizations: \(organizationSummary(profile))")
                     }
                     if let role = profile.contactRole, !role.isEmpty {
                         Text("Role: \(role)")
@@ -131,6 +128,13 @@ struct ProfileView: View {
         let days = availability.weekly.map { $0.weekday.rawValue.prefix(3).capitalized }
         if days.isEmpty { return "Not set" }
         return days.joined(separator: ", ")
+    }
+
+    private func organizationSummary(_ profile: OrganizerProfile) -> String {
+        let names = profile.orgIds.compactMap { id in
+            store.organizations.first { $0.id == id }?.name
+        }
+        return names.isEmpty ? "Not set" : names.joined(separator: ", ")
     }
 }
 

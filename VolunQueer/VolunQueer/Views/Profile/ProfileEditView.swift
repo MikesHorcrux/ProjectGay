@@ -262,9 +262,9 @@ struct ProfileEditView: View {
     private func periodForWindow(_ window: TimeWindow) -> OnboardingAvailabilityPeriod {
         let mid = (window.startMinutes + window.endMinutes) / 2
         switch mid {
-        case ..<12 * 60:
+        case ..<(12 * 60):
             return .morning
-        case ..<17 * 60:
+        case ..<(17 * 60):
             return .afternoon
         default:
             return .evening
