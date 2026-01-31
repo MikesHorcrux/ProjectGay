@@ -11,16 +11,21 @@ import FirebaseFirestore
 
 @main
 struct VolunQueerApp: App {
-    @StateObject private var store = AppStore(
-        dataSource: AppConfiguration.dataSource,
-        preload: AppConfiguration.dataSource == .mock
-    )
+    @StateObject private var store: AppStore
 
     init() {
-        if AppConfiguration.dataSource == .firestore {
+        let dataSource = AppConfiguration.dataSource
+        if dataSource == .firestore {
             FirebaseApp.configure()
             _ = Firestore.firestore()
         }
+
+        _store = StateObject(
+            wrappedValue: AppStore(
+                dataSource: dataSource,
+                preload: dataSource == .mock
+            )
+        )
     }
 
     var body: some Scene {
