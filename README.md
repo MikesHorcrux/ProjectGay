@@ -22,6 +22,18 @@ This repo does **not** commit `GoogleService-Info.plist`. Each developer must ad
 
 Note: `GoogleService-Info.plist` is ignored by git in this repo. Do not commit it.
 
+## Firebase Auth (email + Apple)
+
+1. In Firebase console, enable **Email/Password** and **Apple** under Authentication.
+2. In the Apple Developer portal:
+   - Enable **Sign in with Apple** for your app ID.
+   - Create a **Service ID** and associate it with your app.
+   - Create a **Sign in with Apple key** and download the `.p8` file.
+3. In Firebase console (Apple provider), upload the key and configure the Service ID.
+4. In Xcode, add the **Sign in with Apple** capability to the app target.
+
+The app will show the auth screen on launch when Firebase is configured.
+
 ## Data model (Firestore)
 
 These are the recommended collections and core fields. Keep PII minimal and use consent flags

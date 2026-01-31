@@ -3,6 +3,7 @@ import SwiftUI
 /// Root view showing loaded data from the store.
 struct ContentView: View {
     @EnvironmentObject private var store: AppStore
+    @EnvironmentObject private var authStore: AuthStore
 
     var body: some View {
         NavigationStack {
@@ -65,6 +66,12 @@ struct ContentView: View {
                         }
                     }
                 }
+
+                ToolbarItem(placement: .bottomBar) {
+                    Button("Sign Out") {
+                        authStore.signOut()
+                    }
+                }
             }
         }
     }
@@ -73,4 +80,5 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .environmentObject(AppStore(dataSource: .mock, preload: true))
+        .environmentObject(AuthStore(isConfigured: false))
 }
