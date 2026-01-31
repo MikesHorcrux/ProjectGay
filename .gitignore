@@ -39,3 +39,5 @@ Package.resolved
 
 # Firebase
 GoogleService-Info.plist
+
+.DS_Store
