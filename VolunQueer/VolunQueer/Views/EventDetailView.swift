@@ -5,6 +5,8 @@ import SwiftUI
 struct EventDetailView: View {
     let event: Event
     @EnvironmentObject private var store: AppStore
+    @EnvironmentObject private var authStore: AuthStore
+    @State private var isSubmitting = false
 
     private var roles: [EventRole] { store.roles(for: event) }
     private var org: Organization? { store.organization(for: event) }
@@ -33,6 +35,10 @@ struct EventDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) {
             rsvpBar
+        }
+        .task(id: currentUserId ?? "signed-out") {
+            guard let userId = currentUserId else { return }
+            await store.loadRsvp(for: event, userId: userId)
         }
     }
 
@@ -205,9 +211,18 @@ struct EventDetailView: View {
         VStack(spacing: 0) {
             Divider()
             Button {
-                // Auth flow will handle sign-in and RSVP
+                guard let userId = currentUserId else { return }
+                isSubmitting = true
+                Task {
+                    if isRsvped {
+                        await store.cancelRsvp(for: event, userId: userId)
+                    } else {
+                        await store.submitRsvp(for: event, userId: userId)
+                    }
+                    isSubmitting = false
+                }
             } label: {
-                Text("Sign in to RSVP")
+                Text(rsvpButtonText)
                     .font(.headline)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -216,6 +231,7 @@ struct EventDetailView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
             .buttonStyle(.plain)
+            .disabled(isSubmitting || currentUserId == nil)
             .padding(.horizontal)
             .padding(.vertical, 12)
             .background(Theme.cream)
@@ -250,6 +266,27 @@ struct EventDetailView: View {
     private func hasContactContent(_ contact: EventContact) -> Bool {
         (contact.name?.isEmpty == false) || (contact.email?.isEmpty == false) || (contact.phone?.isEmpty == false)
     }
+
+    private var currentUserId: String? {
+        if case .signedIn(let userId) = authStore.state {
+            return userId
+        }
+        return nil
+    }
+
+    private var currentRsvp: RSVP? {
+        guard let userId = currentUserId else { return nil }
+        return store.rsvp(for: event, userId: userId)
+    }
+
+    private var isRsvped: Bool {
+        currentRsvp?.status == .rsvp
+    }
+
+    private var rsvpButtonText: String {
+        guard currentUserId != nil else { return "Sign in to RSVP" }
+        return isRsvped ? "Cancel RSVP" : "RSVP"
+    }
 }
 
 #Preview {
@@ -258,6 +295,7 @@ struct EventDetailView: View {
         if let event = store.publishedEvents.first {
             EventDetailView(event: event)
                 .environmentObject(store)
+                .environmentObject(AuthStore(isConfigured: false))
         }
     }
 }
