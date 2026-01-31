@@ -9,10 +9,12 @@
 /* Begin PBXBuildFile section */
 		7FD34F132F2D88C700640E98 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7FD34F122F2D88C700640E98 /* FirebaseAuth */; };
 		7FD34F152F2D88C700640E98 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7FD34F142F2D88C700640E98 /* FirebaseFirestore */; };
+		DAB195842F2DA9A900A9C1E8 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAB195832F2DA9A900A9C1E8 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		DAB194D82F2D70A100A9C1E8 /* VolunQueer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VolunQueer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DAB195832F2DA9A900A9C1E8 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -41,6 +43,7 @@
 			children = (
 				DAB194DA2F2D70A100A9C1E8 /* VolunQueer */,
 				DAB194D92F2D70A100A9C1E8 /* Products */,
+				DAB195832F2DA9A900A9C1E8 /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -121,6 +124,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DAB195842F2DA9A900A9C1E8 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

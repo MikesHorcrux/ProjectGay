@@ -3,6 +3,7 @@ import SwiftUI
 /// Root view: loads data, then shows volunteer discovery (event list → event detail).
 struct ContentView: View {
     @EnvironmentObject private var store: AppStore
+    @EnvironmentObject private var authStore: AuthStore
 
     var body: some View {
         NavigationStack {
@@ -42,6 +43,12 @@ struct ContentView: View {
                         }
                     }
                 }
+
+                ToolbarItem(placement: .bottomBar) {
+                    Button("Sign Out") {
+                        authStore.signOut()
+                    }
+                }
             }
         }
     }
@@ -50,4 +57,5 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .environmentObject(AppStore(dataSource: .mock, preload: true))
+        .environmentObject(AuthStore(isConfigured: false))
 }

@@ -6,14 +6,17 @@ import FirebaseFirestore
 @main
 struct VolunQueerApp: App {
     @StateObject private var store: AppStore
+    @StateObject private var authStore: AuthStore
 
-    /// Configures Firebase when needed and initializes the shared store.
+    /// Configures Firebase when needed and initializes shared stores.
     init() {
-        let dataSource = AppConfiguration.dataSource
-        if dataSource == .firestore {
+        let isFirebaseConfigured = AppConfiguration.isFirebaseConfigured
+        if isFirebaseConfigured {
             FirebaseApp.configure()
             _ = Firestore.firestore()
         }
+
+        let dataSource = AppConfiguration.dataSource
 
         _store = StateObject(
             wrappedValue: AppStore(
@@ -21,12 +24,14 @@ struct VolunQueerApp: App {
                 preload: dataSource == .mock
             )
         )
+        _authStore = StateObject(wrappedValue: AuthStore(isConfigured: isFirebaseConfigured))
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
                 .environmentObject(store)
+                .environmentObject(authStore)
                 .task {
                     if AppConfiguration.seedOnLaunch, store.dataSource == .firestore {
                         await store.seedMockData()
