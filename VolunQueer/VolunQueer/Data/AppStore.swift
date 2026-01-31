@@ -7,6 +7,7 @@ final class AppStore: ObservableObject {
     @Published private(set) var users: [AppUser] = []
     @Published private(set) var organizations: [Organization] = []
     @Published private(set) var events: [Event] = []
+    @Published private(set) var rolesByEvent: [String: [EventRole]] = [:]
     @Published private(set) var loadState: AppStoreLoadState = .idle
 
     let dataSource: AppStoreDataSource
@@ -71,5 +72,21 @@ final class AppStore: ObservableObject {
         users = bundle.users
         organizations = bundle.organizations
         events = bundle.events
+        rolesByEvent = bundle.rolesByEvent
+    }
+
+    /// Organization that hosts the given event.
+    func organization(for event: Event) -> Organization? {
+        organizations.first { $0.id == event.orgId }
+    }
+
+    /// Roles for an event (from mock bundle; Firestore subcollection can be wired later).
+    func roles(for event: Event) -> [EventRole] {
+        rolesByEvent[event.id] ?? []
+    }
+
+    /// Published events suitable for discovery.
+    var publishedEvents: [Event] {
+        events.filter { $0.status == .published }
     }
 }

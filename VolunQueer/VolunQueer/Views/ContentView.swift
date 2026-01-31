@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Root view showing loaded data from the store.
+/// Root view: loads data, then shows volunteer discovery (event list → event detail).
 struct ContentView: View {
     @EnvironmentObject private var store: AppStore
     @EnvironmentObject private var authStore: AuthStore
@@ -16,33 +16,10 @@ struct ContentView: View {
                         }
                 case .loading:
                     ProgressView("Loading data...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Theme.cream)
                 case .loaded:
-                    List {
-                        Section("Overview") {
-                            LabeledContent("Data Source", value: store.dataSource.rawValue)
-                            LabeledContent("Users", value: "\(store.users.count)")
-                            LabeledContent("Organizations", value: "\(store.organizations.count)")
-                            LabeledContent("Events", value: "\(store.events.count)")
-                        }
-
-                        Section("Events") {
-                            ForEach(store.events) { event in
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(event.title)
-                                        .font(.headline)
-                                    if let description = event.description {
-                                        Text(description)
-                                            .font(.subheadline)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    Text(event.location.name ?? "Location TBD")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .padding(.vertical, 4)
-                            }
-                        }
-                    }
+                    EventListView()
                 case .failed(let message):
                     ContentUnavailableView(
                         "Unable to load data",
