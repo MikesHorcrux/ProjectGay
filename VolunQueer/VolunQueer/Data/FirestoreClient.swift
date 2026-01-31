@@ -44,7 +44,7 @@ final class FirestoreClient {
 
     func setDocument<T: FirestoreDocument>(_ collectionPath: String, id: String, value: T) async throws {
         let data = try value.asFirestoreData()
-        try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             db.collection(collectionPath).document(id).setData(data) { error in
                 if let error {
                     continuation.resume(throwing: error)
