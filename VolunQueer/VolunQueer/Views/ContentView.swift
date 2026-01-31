@@ -18,7 +18,7 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Theme.cream)
             case .loaded:
-                tabView
+                contentForLoadedState
             case .failed(let message):
                 ContentUnavailableView(
                     "Unable to load data",
@@ -30,18 +30,12 @@ struct ContentView: View {
     }
 
     @ViewBuilder
-    private var tabView: some View {
+    private var contentForLoadedState: some View {
         if case .signedIn(let userId) = authStore.state {
-            TabView {
-                DiscoverTabView(userId: userId, service: store.rsvpService)
-                    .tabItem {
-                        Label("Discover", systemImage: "sparkles")
-                    }
-
-                MyRSVPsTabView(userId: userId, service: store.rsvpService)
-                    .tabItem {
-                        Label("My RSVPs", systemImage: "checklist")
-                    }
+            if OnboardingStatus.requiresOnboarding(for: store.user(for: userId)) {
+                OnboardingFlowView(userId: userId)
+            } else {
+                tabView(userId: userId)
             }
         } else {
             ContentUnavailableView(
@@ -49,6 +43,30 @@ struct ContentView: View {
                 systemImage: "person.crop.circle.badge.exclam",
                 description: Text("Sign in to view and manage your RSVPs.")
             )
+        }
+    }
+
+    private func tabView(userId: String) -> some View {
+        let user = store.user(for: userId)
+        let isVolunteer = user?.roles.contains(.volunteer) ?? true
+
+        return TabView {
+            DiscoverTabView(userId: userId, service: store.rsvpService)
+                .tabItem {
+                    Label("Discover", systemImage: "sparkles")
+                }
+
+            if isVolunteer {
+                MyRSVPsTabView(userId: userId, service: store.rsvpService)
+                    .tabItem {
+                        Label("My RSVPs", systemImage: "checklist")
+                    }
+            }
+
+            ProfileTabView(userId: userId)
+                .tabItem {
+                    Label("Profile", systemImage: "person.crop.circle")
+                }
         }
     }
 }
