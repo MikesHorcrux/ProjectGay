@@ -22,6 +22,88 @@ This repo does **not** commit `GoogleService-Info.plist`. Each developer must ad
 
 Note: `GoogleService-Info.plist` is ignored by git in this repo. Do not commit it.
 
+## Data model (Firestore)
+
+These are the recommended collections and core fields. Keep PII minimal and use consent flags
+to control what organizers can see.
+
+`users/{uid}`
+- `displayName`
+- `pronouns` (optional)
+- `photoURL` (optional)
+- `roles` (volunteer, organizer, programAdmin)
+- `status` (active, suspended, archived)
+- `visibility` (map: shareEmail, sharePhone, sharePronouns, shareAccessibility)
+- `contact` (private map: email, phone)
+- `volunteerProfile` (map: interests, skills, availability, accessibilityNeeds, location)
+- `organizerProfile` (map: orgIds, contactRole, verified)
+- `impactSummary` (map: totalHours, eventsAttended, lastEventAt)
+- `createdAt`, `updatedAt`
+
+`organizations/{orgId}`
+- `name`
+- `mission`
+- `website`
+- `location` (map: latitude, longitude, address)
+- `contact` (email, phone)
+- `verified`
+- `ownerUid`
+- `createdAt`, `updatedAt`
+
+`organizations/{orgId}/members/{uid}`
+- `role` (admin, staff, viewer)
+- `status` (active, invited, removed)
+- `joinedAt`, `invitedAt`
+
+`events/{eventId}`
+- `orgId`
+- `title`, `description`
+- `startsAt`, `endsAt`, `timezone`
+- `location` (map: address, city, region, postalCode, country, latitude, longitude)
+- `accessibility` (map: notes, tags)
+- `tags`
+- `rsvpCap`
+- `status` (draft, published, cancelled, archived)
+- `contact` (name, email, phone)
+- `createdBy`, `createdAt`, `updatedAt`
+
+`events/{eventId}/roles/{roleId}`
+- `title`, `description`
+- `slotsTotal`, `slotsFilled`
+- `skillsRequired`
+- `checkInRequired`
+- `minAge`
+
+`events/{eventId}/rsvps/{uid}`
+- `roleId`
+- `status` (rsvp, waitlisted, cancelled, noShow)
+- `consent` (map: shareEmail, sharePhone, sharePronouns, shareAccessibility)
+- `answers` (map)
+- `createdAt`, `updatedAt`
+
+`events/{eventId}/attendance/{uid}`
+- `checkedInAt`, `checkedOutAt`
+- `hours`
+- `verifiedBy`
+- `notes`
+
+`messageThreads/{threadId}`
+- `eventId` (optional)
+- `orgId` (optional)
+- `participantUids`
+- `createdAt`, `lastMessageAt`
+
+`messageThreads/{threadId}/messages/{messageId}`
+- `senderUid`
+- `body`
+- `sentAt`
+
+`users/{uid}/notifications/{notificationId}`
+- `type` (eventReminder, rsvpUpdate, orgMessage, system)
+- `title`, `body`
+- `deepLink` (optional)
+- `createdAt`, `readAt`
+
 ## Run
 
 1. Open `VolunQueer/VolunQueer.xcodeproj` in Xcode.
