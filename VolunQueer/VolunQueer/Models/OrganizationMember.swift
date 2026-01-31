@@ -1,10 +1,6 @@
-//
-//  OrganizationMember.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Membership record linking a user to an organization.
 struct OrganizationMember: Identifiable, Codable, Hashable, FirestoreDocument {
     var id: String
     var userId: String

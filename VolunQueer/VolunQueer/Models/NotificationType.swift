@@ -1,10 +1,6 @@
-//
-//  NotificationType.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Types of notifications.
 enum NotificationType: String, Codable, Hashable {
     case eventReminder
     case rsvpUpdate

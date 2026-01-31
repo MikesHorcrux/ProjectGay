@@ -1,10 +1,6 @@
-//
-//  OrganizerProfile.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Organizer-specific profile details.
 struct OrganizerProfile: Codable, Hashable {
     var orgIds: [String]
     var contactRole: String?

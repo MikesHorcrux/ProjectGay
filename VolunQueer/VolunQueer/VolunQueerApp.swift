@@ -1,18 +1,13 @@
-//
-//  VolunQueerApp.swift
-//  VolunQueer
-//
-//  Created by Matthew Waller on 1/30/26.
-//
-
 import SwiftUI
 import FirebaseCore
 import FirebaseFirestore
 
+/// Application entry point for VolunQueer.
 @main
 struct VolunQueerApp: App {
     @StateObject private var store: AppStore
 
+    /// Configures Firebase when needed and initializes the shared store.
     init() {
         let dataSource = AppConfiguration.dataSource
         if dataSource == .firestore {

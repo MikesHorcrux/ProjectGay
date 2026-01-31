@@ -1,10 +1,6 @@
-//
-//  MessageThread.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Conversation thread for an org or event.
 struct MessageThread: Identifiable, Codable, Hashable, FirestoreDocument {
     var id: String
     var eventId: String?

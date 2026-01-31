@@ -1,10 +1,6 @@
-//
-//  EventRole.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Role assignment within an event and its slot counts.
 struct EventRole: Identifiable, Codable, Hashable, FirestoreDocument {
     var id: String
     var title: String

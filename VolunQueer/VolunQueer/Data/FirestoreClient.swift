@@ -1,16 +1,11 @@
-//
-//  FirestoreClient.swift
-//  VolunQueer
-//
-//  Thin async wrapper around Firestore for basic CRUD and seeding.
-//
-
 import Foundation
 import FirebaseFirestore
 
+/// Thin async wrapper around Firestore operations.
 final class FirestoreClient {
     private let db = Firestore.firestore()
 
+    /// Returns true if the collection has no documents.
     func collectionIsEmpty(_ path: String) async throws -> Bool {
         try await withCheckedThrowingContinuation { continuation in
             db.collection(path).limit(to: 1).getDocuments { snapshot, error in
@@ -23,6 +18,7 @@ final class FirestoreClient {
         }
     }
 
+    /// Loads every document in a collection and decodes to the requested model type.
     func fetchCollection<T: FirestoreDocument>(_ path: String, as type: T.Type) async throws -> [T] {
         try await withCheckedThrowingContinuation { continuation in
             db.collection(path).getDocuments { snapshot, error in
@@ -42,6 +38,7 @@ final class FirestoreClient {
         }
     }
 
+    /// Writes a document using the provided model value.
     func setDocument<T: FirestoreDocument>(_ collectionPath: String, id: String, value: T) async throws {
         let data = try value.asFirestoreData()
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
@@ -55,6 +52,7 @@ final class FirestoreClient {
         }
     }
 
+    /// Seeds Firestore with a mock data bundle.
     func seed(bundle: MockDataBundle) async throws {
         for user in bundle.users {
             try await setDocument("users", id: user.id, value: user)

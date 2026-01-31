@@ -1,12 +1,6 @@
-//
-//  ContentView.swift
-//  VolunQueer
-//
-//  Created by Matthew Waller on 1/30/26.
-//
-
 import SwiftUI
 
+/// Root view showing loaded data from the store.
 struct ContentView: View {
     @EnvironmentObject private var store: AppStore
 

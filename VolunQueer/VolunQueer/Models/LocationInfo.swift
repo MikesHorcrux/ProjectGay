@@ -1,10 +1,6 @@
-//
-//  LocationInfo.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Structured location details.
 struct LocationInfo: Codable, Hashable {
     var name: String?
     var address: String?

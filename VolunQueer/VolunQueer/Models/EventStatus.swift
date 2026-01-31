@@ -1,10 +1,6 @@
-//
-//  EventStatus.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Lifecycle status for an event.
 enum EventStatus: String, Codable, Hashable {
     case draft
     case published

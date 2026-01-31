@@ -1,10 +1,6 @@
-//
-//  Attendance.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Check-in/out and hours for an event attendance record.
 struct Attendance: Identifiable, Codable, Hashable, FirestoreDocument {
     var id: String
     var userId: String

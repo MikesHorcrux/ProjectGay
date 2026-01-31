@@ -1,10 +1,6 @@
-//
-//  RSVP.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Volunteer RSVP for an event.
 struct RSVP: Identifiable, Codable, Hashable, FirestoreDocument {
     var id: String
     var userId: String

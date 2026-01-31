@@ -1,10 +1,6 @@
-//
-//  AppStoreLoadState.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Loading state for the app store.
 enum AppStoreLoadState: Equatable {
     case idle
     case loading

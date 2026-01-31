@@ -1,10 +1,6 @@
-//
-//  Message.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Single message within a thread.
 struct Message: Identifiable, Codable, Hashable, FirestoreDocument {
     var id: String
     var threadId: String

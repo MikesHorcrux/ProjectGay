@@ -1,10 +1,6 @@
-//
-//  AppUser.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Represents a user account in VolunQueer.
 struct AppUser: Identifiable, Codable, Hashable, FirestoreDocument {
     var id: String
     var displayName: String

@@ -1,10 +1,6 @@
-//
-//  Event.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Volunteer event posted by an organization.
 struct Event: Identifiable, Codable, Hashable, FirestoreDocument {
     var id: String
     var orgId: String

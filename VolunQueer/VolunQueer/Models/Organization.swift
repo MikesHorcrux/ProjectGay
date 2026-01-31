@@ -1,10 +1,6 @@
-//
-//  Organization.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Organization hosting events.
 struct Organization: Identifiable, Codable, Hashable, FirestoreDocument {
     var id: String
     var name: String

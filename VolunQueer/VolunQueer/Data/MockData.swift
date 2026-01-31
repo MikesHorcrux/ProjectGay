@@ -1,12 +1,6 @@
-//
-//  MockData.swift
-//  VolunQueer
-//
-//  Seed data for local development and previews.
-//
-
 import Foundation
 
+/// Factory for mock data used in development and seeding.
 enum MockData {
     static let bundle: MockDataBundle = {
         let now = Date()

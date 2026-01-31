@@ -1,10 +1,6 @@
-//
-//  AccountStatus.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Lifecycle status for a user account.
 enum AccountStatus: String, Codable, Hashable {
     case active
     case suspended

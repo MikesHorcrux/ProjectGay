@@ -1,10 +1,6 @@
-//
-//  MockDataBundle.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Grouped mock data for seeding collections.
 struct MockDataBundle {
     let users: [AppUser]
     let organizations: [Organization]

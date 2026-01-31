@@ -1,10 +1,6 @@
-//
-//  Weekday.swift
-//  VolunQueer
-//
-
 import Foundation
 
+/// Days of the week.
 enum Weekday: String, Codable, Hashable {
     case monday
     case tuesday

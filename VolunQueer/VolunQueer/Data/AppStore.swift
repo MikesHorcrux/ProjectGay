@@ -1,13 +1,7 @@
-//
-//  AppStore.swift
-//  VolunQueer
-//
-//  Shared app data loader for Firestore or mock data.
-//
-
 import Foundation
 import Combine
 
+/// Observable store that loads app data from mock or Firestore sources.
 @MainActor
 final class AppStore: ObservableObject {
     @Published private(set) var users: [AppUser] = []
@@ -18,6 +12,7 @@ final class AppStore: ObservableObject {
     let dataSource: AppStoreDataSource
     private let firestore: FirestoreClient?
 
+    /// Creates a store with the specified data source.
     init(dataSource: AppStoreDataSource, preload: Bool = false) {
         self.dataSource = dataSource
         self.firestore = dataSource == .firestore ? FirestoreClient() : nil
@@ -28,6 +23,7 @@ final class AppStore: ObservableObject {
         }
     }
 
+    /// Loads core collections into memory.
     func load() async {
         loadState = .loading
         do {
@@ -54,6 +50,7 @@ final class AppStore: ObservableObject {
         }
     }
 
+    /// Seeds Firestore with mock data when running in Firestore mode.
     func seedMockData() async {
         guard dataSource == .firestore, let firestore else { return }
         loadState = .loading
@@ -68,6 +65,7 @@ final class AppStore: ObservableObject {
         }
     }
 
+    /// Applies bundled mock data without hitting Firestore.
     private func applyMockData() {
         let bundle = MockData.bundle
         users = bundle.users
