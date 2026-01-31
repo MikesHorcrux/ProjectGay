@@ -40,7 +40,7 @@ actor MockRSVPService: RSVPService {
     }
 
     func fetchRsvps(eventId: String) async throws -> [RSVP] {
-        let rsvps = rsvpsByEvent[eventId]?.values ?? []
+        let rsvps = rsvpsByEvent[eventId].map { Array($0.values) } ?? []
         return rsvps.map { rsvp in
             if rsvp.eventId == nil {
                 var updated = rsvp

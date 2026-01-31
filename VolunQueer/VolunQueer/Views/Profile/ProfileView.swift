@@ -110,7 +110,7 @@ struct ProfileView: View {
         }
     }
 
-    private func cardView(title: String, content: () -> some View) -> some View {
+    private func cardView<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
                 .font(.headline)
@@ -144,3 +144,4 @@ struct ProfileView: View {
             .environmentObject(AppStore(dataSource: .mock, preload: true))
     }
 }
+
