@@ -132,7 +132,7 @@ final class AuthStore: ObservableObject {
             }
 
             state = .loading
-            let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: tokenString, rawNonce: nonce)
+            let credential = OAuthProvider.credential(providerID: .apple, idToken: tokenString, rawNonce: nonce)
             Task {
                 await signIn(with: credential)
             }
