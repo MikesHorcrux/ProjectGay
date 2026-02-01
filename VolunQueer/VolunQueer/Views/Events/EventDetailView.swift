@@ -6,9 +6,13 @@ struct EventDetailView: View {
     let event: Event
     @EnvironmentObject private var store: AppStore
     @EnvironmentObject private var authStore: AuthStore
+    @State private var isEditing = false
 
-    private var roles: [EventRole] { store.roles(for: event) }
-    private var org: Organization? { store.organization(for: event) }
+    private var currentEvent: Event {
+        store.events.first { $0.id == event.id } ?? event
+    }
+    private var roles: [EventRole] { store.roles(for: currentEvent) }
+    private var org: Organization? { store.organization(for: currentEvent) }
     private var currentUser: AppUser? {
         guard case .signedIn(let userId) = authStore.state else { return nil }
         return store.users.first { $0.id == userId }
@@ -20,10 +24,10 @@ struct EventDetailView: View {
                 headerSection
                 whenWhereSection
                 whatYouDoSection
-                if let accessibility = event.accessibility, hasAccessibilityContent(accessibility) {
+                if let accessibility = currentEvent.accessibility, hasAccessibilityContent(accessibility) {
                     accessibilitySection(accessibility)
                 }
-                if let contact = event.contact, hasContactContent(contact) {
+                if let contact = currentEvent.contact, hasContactContent(contact) {
                     contactSection(contact)
                 }
                 if !roles.isEmpty {
@@ -34,8 +38,24 @@ struct EventDetailView: View {
             .padding(.bottom, 80)
         }
         .background(Theme.cream)
-        .navigationTitle(event.title)
+        .navigationTitle(currentEvent.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if isOrganizerForEvent, let userId = currentUserId {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Edit") {
+                        isEditing = true
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $isEditing) {
+            if let userId = currentUserId {
+                NavigationStack {
+                        EventEditorView(userId: userId, event: currentEvent, roles: roles)
+                }
+            }
+        }
         .safeAreaInset(edge: .bottom) {
             rsvpBar
         }
@@ -48,9 +68,9 @@ struct EventDetailView: View {
                     .font(.subheadline)
                     .foregroundStyle(Theme.skyTeal)
             }
-            if !event.tags.isEmpty {
+            if !currentEvent.tags.isEmpty {
                 HStack(spacing: 6) {
-                    ForEach(event.tags, id: \.self) { tag in
+                    ForEach(currentEvent.tags, id: \.self) { tag in
                         Text(tag)
                             .font(.caption)
                             .padding(.horizontal, 8)
@@ -75,7 +95,7 @@ struct EventDetailView: View {
                         .frame(width: 24, alignment: .center)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(whenText)
-                        Text(event.timezone)
+                        Text(currentEvent.timezone)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -102,7 +122,7 @@ struct EventDetailView: View {
     private var whatYouDoSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             sectionLabel("What you'll do")
-            if let description = event.description, !description.isEmpty {
+            if let description = currentEvent.description, !description.isEmpty {
                 Text(description)
                     .font(.body)
                     .foregroundStyle(Theme.softCharcoal)
@@ -209,9 +229,9 @@ struct EventDetailView: View {
             Divider()
             if let userId = currentUserId {
                 if isOrganizerForEvent {
-                    OrganizerEventBarView(event: event, service: store.rsvpService)
+                    OrganizerEventBarView(event: currentEvent, service: store.rsvpService)
                 } else {
-                    RSVPBarView(event: event, roles: roles, userId: userId, service: store.rsvpService)
+                    RSVPBarView(event: currentEvent, roles: roles, userId: userId, service: store.rsvpService)
                 }
             } else {
                 signInPromptBar
@@ -228,12 +248,12 @@ struct EventDetailView: View {
     private var whenText: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, MMMM d 'at' h:mm a"
-        formatter.timeZone = TimeZone(identifier: event.timezone) ?? .current
-        return formatter.string(from: event.startsAt)
+        formatter.timeZone = TimeZone(identifier: currentEvent.timezone) ?? .current
+        return formatter.string(from: currentEvent.startsAt)
     }
 
     private var whereText: String {
-        let parts = [event.location.name, event.location.address, event.location.city]
+        let parts = [currentEvent.location.name, currentEvent.location.address, currentEvent.location.city]
             .compactMap { $0 }.filter { !$0.isEmpty }
         return parts.joined(separator: "\n").isEmpty ? "Location TBD" : parts.joined(separator: "\n")
     }
@@ -256,10 +276,10 @@ struct EventDetailView: View {
     private var isOrganizerForEvent: Bool {
         guard let user = currentUser else { return false }
         guard user.roles.contains(.organizer) else { return false }
-        if event.createdBy == user.id {
+        if currentEvent.createdBy == user.id {
             return true
         }
-        return user.organizerProfile?.orgIds.contains(event.orgId) ?? false
+        return user.organizerProfile?.orgIds.contains(currentEvent.orgId) ?? false
     }
 
     private var signInPromptBar: some View {

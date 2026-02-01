@@ -74,6 +74,19 @@ final class FirestoreClient {
         }
     }
 
+    /// Deletes a document by ID.
+    func deleteDocument(_ collectionPath: String, id: String) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            db.collection(collectionPath).document(id).delete { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: ())
+                }
+            }
+        }
+    }
+
     /// Seeds Firestore with a mock data bundle.
     func seed(bundle: MockDataBundle) async throws {
         for user in bundle.users {

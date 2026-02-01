@@ -49,6 +49,7 @@ struct ContentView: View {
     private func tabView(userId: String) -> some View {
         let user = store.user(for: userId)
         let isVolunteer = user?.roles.contains(.volunteer) ?? true
+        let isOrganizer = user?.roles.contains(.organizer) ?? false
 
         return TabView {
             DiscoverTabView(userId: userId, service: store.rsvpService)
@@ -60,6 +61,13 @@ struct ContentView: View {
                 MyRSVPsTabView(userId: userId, service: store.rsvpService)
                     .tabItem {
                         Label("My RSVPs", systemImage: "checklist")
+                    }
+            }
+
+            if isOrganizer {
+                OrganizerTabView(userId: userId)
+                    .tabItem {
+                        Label("Manage", systemImage: "square.and.pencil")
                     }
             }
 

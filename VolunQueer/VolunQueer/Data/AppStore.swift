@@ -52,6 +52,7 @@ final class AppStore: ObservableObject {
                 users = try await usersTask
                 organizations = try await organizationsTask
                 events = try await eventsTask
+                rolesByEvent = try await fetchRoles(for: events, using: firestore)
                 loadState = .loaded
             }
         } catch {
@@ -93,9 +94,17 @@ final class AppStore: ObservableObject {
         users.first { $0.id == id }
     }
 
-    /// Roles for an event (from mock bundle; Firestore subcollection can be wired later).
+    /// Roles for an event, keyed by event ID.
     func roles(for event: Event) -> [EventRole] {
         rolesByEvent[event.id] ?? []
+    }
+
+    /// Events that the given organizer can manage.
+    func events(managedBy user: AppUser) -> [Event] {
+        let orgIds = Set(user.organizerProfile?.orgIds ?? [])
+        return events.filter { event in
+            event.createdBy == user.id || orgIds.contains(event.orgId)
+        }
     }
 
     /// Saves a user profile and updates local state.
@@ -122,8 +131,46 @@ final class AppStore: ObservableObject {
         }
     }
 
+    /// Saves an event and updates local state.
+    func saveEvent(_ event: Event) async throws {
+        if dataSource == .firestore, let firestore {
+            try await firestore.setDocument("events", id: event.id, value: event)
+        }
+        if let index = events.firstIndex(where: { $0.id == event.id }) {
+            events[index] = event
+        } else {
+            events.append(event)
+        }
+    }
+
+    /// Saves roles for an event and updates local state.
+    func saveRoles(_ roles: [EventRole], for eventId: String) async throws {
+        if dataSource == .firestore, let firestore {
+            let path = "events/\(eventId)/roles"
+            let existingRoles = rolesByEvent[eventId] ?? []
+            let newIds = Set(roles.map { $0.id })
+            let removedRoles = existingRoles.filter { !newIds.contains($0.id) }
+            for role in removedRoles {
+                try await firestore.deleteDocument(path, id: role.id)
+            }
+            for role in roles {
+                try await firestore.setDocument(path, id: role.id, value: role)
+            }
+        }
+        rolesByEvent[eventId] = roles
+    }
+
     /// Published events suitable for discovery.
     var publishedEvents: [Event] {
         events.filter { $0.status == .published }
+    }
+
+    private func fetchRoles(for events: [Event], using firestore: FirestoreClient) async throws -> [String: [EventRole]] {
+        var rolesLookup: [String: [EventRole]] = [:]
+        for event in events {
+            let roles = try await firestore.fetchCollection("events/\(event.id)/roles", as: EventRole.self)
+            rolesLookup[event.id] = roles
+        }
+        return rolesLookup
     }
 }
