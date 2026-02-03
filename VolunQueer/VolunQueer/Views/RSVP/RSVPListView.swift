@@ -7,6 +7,12 @@ struct RSVPListView: View {
     private let userId: String
     private let service: RSVPService
     @StateObject private var viewModel: RSVPListViewModel
+    @State private var viewMode: ViewMode = .list
+
+    enum ViewMode {
+        case list
+        case calendar
+    }
 
     init(userId: String, service: RSVPService) {
         self.userId = userId
@@ -32,20 +38,28 @@ struct RSVPListView: View {
                     description: Text("Browse events and RSVP to keep track here.")
                 )
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        ForEach(viewModel.rows) { row in
-                            NavigationLink(value: row.event) {
-                                RSVPRowView(
-                                    event: row.event,
-                                    status: row.rsvp.status,
-                                    roleTitle: roleTitle(for: row)
-                                )
+                switch viewMode {
+                case .list:
+                    ScrollView {
+                        LazyVStack(spacing: 16) {
+                            ForEach(viewModel.rows) { row in
+                                NavigationLink(value: row.event) {
+                                    RSVPRowView(
+                                        event: row.event,
+                                        status: row.rsvp.status,
+                                        roleTitle: roleTitle(for: row)
+                                    )
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
+                        .padding()
                     }
-                    .padding()
+                case .calendar:
+                    RSVPCalendarView(
+                        rows: viewModel.rows,
+                        userId: userId
+                    )
                 }
             }
         }
@@ -53,6 +67,16 @@ struct RSVPListView: View {
         .navigationTitle("My RSVPs")
         .navigationDestination(for: Event.self) { event in
             EventDetailView(event: event)
+        }
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Picker("View Mode", selection: $viewMode) {
+                    Label("List", systemImage: "list.bullet").tag(ViewMode.list)
+                    Label("Calendar", systemImage: "calendar").tag(ViewMode.calendar)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 200)
+            }
         }
         .task(id: store.events) {
             await viewModel.load(events: store.events)
